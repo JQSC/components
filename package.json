@@ -1,0 +1,22 @@
+{
+  "name": "components",
+  "version": "1.0.0",
+  "description": "前端组件集",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JQSC/components.git"
+  },
+  "keywords": [
+    "组件、js"
+  ],
+  "author": "CSQ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JQSC/components/issues"
+  },
+  "homepage": "https://github.com/JQSC/components#readme"
+}
