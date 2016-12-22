@@ -62,7 +62,7 @@ Dialog.prototype.close=function(){
         document.body.removeChild(This.dialog);
         This.json.sign=false
     };
-} ;
+};
 
 function dialogDrag(){
     var oDrag=new Drag();
@@ -101,8 +101,10 @@ Drag.prototype.init=function(option){
 
     if(this.settings.id){
         this.oDiv=document.getElementById(this.settings.id);
+        this.oDiv.style.position='absolute'
     }else if(this.settings.className){
         this.oDiv=document.getElementsByClassName(this.settings.className)[0];
+        this.oDiv.style.position='absolute'
     }
 
     this.oDiv.onmousedown=function(ev){
