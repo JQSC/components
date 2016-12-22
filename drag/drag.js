@@ -34,10 +34,12 @@ Drag.prototype.init=function(option){
     if(this.settings.id){
 
         this.oDiv=document.getElementById(this.settings.id);
+        this.oDiv.style.position='absolute';
 
     }else if(this.settings.className){
 
-        this.oDiv=document.getElementsByClassName(option.className)[0];
+        this.oDiv=document.getElementsByClassName(this.settings.className)[0];
+        this.oDiv.style.position='absolute';
     }
 
     this.oDiv.onmousedown=function(ev){
