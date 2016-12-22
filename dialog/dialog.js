@@ -67,7 +67,7 @@ Dialog.prototype.close=function(){
 function dialogDrag(){
     var oDrag=new Drag();
     oDrag.init({
-        id:'dialog'
+        className:'dialog'
     });
     bindEvent(oDrag,'Down',function(){
         document.title="可拖拽"
@@ -80,22 +80,31 @@ function extend(obj1,obj2){
     }
 }
 
+
+
 ///拖拽
 function Drag(){
     this.oDiv='';
     this.disX=0;
     this.disY=0;
     this.settings={
-        Down:function(){},
-        Up:function(){}
-    }
+          id:null,
+          className:null
+      }
 }
 
 Drag.prototype.init=function(option){
 
     var This=this;
-    extend(this.settings,option)
-    this.oDiv=document.getElementsByClassName(option.id)[0];
+
+    extend(this.settings,option);
+
+    if(this.settings.id){
+        this.oDiv=document.getElementById(this.settings.id);
+    }else if(this.settings.className){
+        this.oDiv=document.getElementsByClassName(this.settings.className)[0];
+    }
+
     this.oDiv.onmousedown=function(ev){
 
         var ev=ev || window.event;
@@ -112,7 +121,7 @@ Drag.prototype.init=function(option){
 
             document.onmousemove=null;
             document.onmouseup=null;
-            This.settings.Up();
+           // This.settings.Up();
             clickEvent(This,'Up')
         };
         return false
