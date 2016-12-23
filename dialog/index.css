@@ -58,3 +58,8 @@ body,button,span{font:14px/1.5 "Microsoft YaHei",Arial,  Verdana, sans-serif;}
 .dialog_footer_submit:hover{
     background-color: #58b7ff;
 }
+#mask{
+    position: fixed;z-index: 999;top: 0;left: 0;
+    width: 100%;height: 100%;background-color: #475669;
+    opacity:0.5;display:block;
+}

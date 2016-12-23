@@ -1,17 +1,26 @@
 /**
  * Created by chi on 2016/12/22.
  */
+
+/*
+ opt:content  title  undo  submit
+ method : close
+ event :
+
+*/
 function Dialog(){
     this.dialog=null;
     this.dialog_header=null;
     this.dialog_body=null;
     this.dialog_footer=null;
+    this.mask=null
     //默认参数
     this.settings={
         title:'提示',
         content:'这是一段信息',
         undo:'取消',
-        submit:'确定'
+        submit:'确定',
+        mask:true
 
     }
 }
@@ -21,13 +30,15 @@ Dialog.prototype.init= function(opt){
     if(!this.json.sign){
         this.create();
         this.json.sign=true  ; //开关，只允许同时存在一个弹窗
-        this.close();
+        this.close(true);
     }
 };
 Dialog.prototype.create=function(){
-    this.sign=true
+
+    this.sign=true;
     this.dialog=document.createElement('div');
     this.dialog.className='dialog';
+    this.dialog.style.zIndex='1000';
 
     this.dialog_header=document.createElement('div');
     this.dialog_header.className='dialog_header';
@@ -44,24 +55,36 @@ Dialog.prototype.create=function(){
     document.body.appendChild(this.dialog);
     this.dialog.appendChild( this.dialog_header);
     this.dialog.appendChild( this.dialog_body);
-    this.dialog.appendChild( this.dialog_footer)
+    this.dialog.appendChild( this.dialog_footer);
+    if(this.settings.mask){
+        this.mask=document.createElement('div');
+        this.mask.id='mask';
+        document.body.appendChild(this.mask);
+    }
 
     //加入拖拽
     dialogDrag()
 };
 
-Dialog.prototype.close=function(){
+Dialog.prototype.close=function(type){
     var This=this;
     var oClose=document.getElementsByClassName('close');
     oClose[0].onclick=function(){
         document.body.removeChild(This.dialog);
-        This.json.sign=false
+        This.json.sign=false;
+        This.mask.style.display='none'
     };
     var oUndo=this.dialog_footer.getElementsByTagName('span');
     oUndo[0].onclick=function(){
         document.body.removeChild(This.dialog);
-        This.json.sign=false
+        This.json.sign=false;
+        This.mask.style.display='none'
     };
+    if(!type){
+        document.body.removeChild(This.dialog);
+        This.json.sign=false;
+        This.mask.style.display='none'
+    }
 };
 
 function dialogDrag(){
@@ -71,6 +94,16 @@ function dialogDrag(){
     });
     bindEvent(oDrag,'Down',function(){
         document.title="可拖拽"
+    });
+    //当拖拽的时候加入 边框变色
+    bindEvent(oDrag,'broad',function(element,type){
+        if(type && (element.style.border=='')){
+                element.style.border='2px solid #20a0ff';
+        }else if(!type && (element.style.border!='')){
+                element.style.border=''
+
+        }
+
     });
 }
 
@@ -116,7 +149,8 @@ Drag.prototype.init=function(option){
             var ev=ev||window.event;
             This.fnMove(ev)
             // This.settings.Down()
-            clickEvent(This,'Down')
+            clickEvent(This,'Down');
+            clickEvent(This,'broad',This.oDiv,true)
         };
 
         document.onmouseup=function(){
@@ -125,6 +159,7 @@ Drag.prototype.init=function(option){
             document.onmouseup=null;
            // This.settings.Up();
             clickEvent(This,'Up')
+            clickEvent(This,'broad',This.oDiv,false)
         };
         return false
     };
@@ -163,10 +198,10 @@ function bindEvent(obj,events,fn){
         obj.attachEvent('on'+events, fn);
     }
 }
-function clickEvent(obj,events){
+function clickEvent(obj,events,element,type){
     if(obj.listeners[events]){
         for(var i=0;i<obj.listeners[events].length;i++){
-            obj.listeners[events][i]();
+            obj.listeners[events][i](element,type);
         }
     }
 

@@ -9,10 +9,26 @@ function dialogDrag(){
         id:'div1',
         className:'dialog'
     });
-    bindEvent(oDrag,'Down',function(){
+    bindEvent(oDrag,'Down',function(element){
         document.title="可拖拽"
     });
+
+    bindEvent(oDrag,'broad',function(element,type){
+        if(type && (element.style.border=='')){
+            element.style.border='2px solid #20a0ff';
+        }else if(!type && (element.style.border!='')){
+            element.style.border=''
+        }
+    });
+
 }
+
+/*
+  opt: id   className
+  event: broad Down
+
+*/
+
 
 ///拖拽
 function Drag(){
@@ -32,14 +48,11 @@ Drag.prototype.init=function(option){
     extend(this.settings,option);
 
     if(this.settings.id){
-
         this.oDiv=document.getElementById(this.settings.id);
-        this.oDiv.style.position='absolute';
-
+        this.oDiv.style.position='absolute'
     }else if(this.settings.className){
-
         this.oDiv=document.getElementsByClassName(this.settings.className)[0];
-        this.oDiv.style.position='absolute';
+        this.oDiv.style.position='absolute'
     }
 
     this.oDiv.onmousedown=function(ev){
@@ -48,19 +61,20 @@ Drag.prototype.init=function(option){
         This.fnDown(ev);
 
         document.onmousemove=function(ev){
-
             var ev=ev||window.event;
-            This.fnMove(ev);
+            This.fnMove(ev)
             // This.settings.Down()
-           // clickEvent(This,'Down')
+            clickEvent(This,'Down');
+            clickEvent(This,'broad',This.oDiv,true)
         };
 
         document.onmouseup=function(){
 
             document.onmousemove=null;
             document.onmouseup=null;
-           // This.settings.Up();
-           // clickEvent(This,'Up')
+            // This.settings.Up();
+            clickEvent(This,'Up');
+            clickEvent(This,'broad',This.oDiv,false)
         };
         return false
     };
@@ -87,12 +101,6 @@ Drag.prototype.fnMove=function(ev){
     this.oDiv.style.top=T+'px';
 };
 
-function extend(obj1,obj2){
-    for(var attr in obj2){
-        obj1[attr]=obj2[attr]
-    }
-}
-
 function bindEvent(obj,events,fn){
 
     obj.listeners=obj.listeners||{};
@@ -105,12 +113,18 @@ function bindEvent(obj,events,fn){
         obj.attachEvent('on'+events, fn);
     }
 }
-
-function clickEvent(obj,events){
+function clickEvent(obj,events,element,type){
     if(obj.listeners[events]){
         for(var i=0;i<obj.listeners[events].length;i++){
-            obj.listeners[events][i]();
+            obj.listeners[events][i](element,type);
         }
     }
 
+}
+
+
+function extend(obj1,obj2){
+    for(var attr in obj2){
+        obj1[attr]=obj2[attr]
+    }
 }
