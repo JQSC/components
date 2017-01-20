@@ -6,14 +6,15 @@
  opt:content  title  undo  submit
  method : close
  event :
-
+ desc:弹窗组件
 */
 function Dialog(){
     this.dialog=null;
     this.dialog_header=null;
     this.dialog_body=null;
     this.dialog_footer=null;
-    this.mask=null
+    this.mask=null;
+
     //默认参数
     this.settings={
         title:'提示',
@@ -22,9 +23,28 @@ function Dialog(){
         submit:'确定',
         mask:true
 
-    }
-}
+    };
+    //弹窗元素配置
+    this.DialogStyle=[{
+        dialogClass:'dialog',
+        zIndex:'1000'
+    }, {
+        dialogClass:'dialog_header',
+        html:'<span class="dialog_header_title">'+this.settings.title+'</span><span class="close">X</span>',
+    },{
+        dialogClass:'dialog_header',
+        html:'<span>'+this.settings.content+'</span>'
+    }, {
+        dialogClass:'dialog_footer',
+        html:'<button class="dialog_footer_undo"><span>'+this.settings.undo+'</span></button>'+
+        '<button class="dialog_footer_submit"><span>'+this.settings.submit+'</span></button>'
+    },{
+
+    }];
+};
+
 Dialog.prototype.json={};
+
 Dialog.prototype.init= function(opt){
     extend(this.settings,opt);
     if(!this.json.sign){
@@ -36,54 +56,32 @@ Dialog.prototype.init= function(opt){
 Dialog.prototype.create=function(){
 
     this.sign=true;
-    this.dialog=document.createElement('div');
-    this.dialog.className='dialog';
-    this.dialog.style.zIndex='1000';
 
-    this.dialog_header=document.createElement('div');
-    this.dialog_header.className='dialog_header';
-    this.dialog_header.innerHTML='<span class="dialog_header_title">'+this.settings.title+'</span><span class="close">X</span>';
+    this.dialogView=[];   //弹窗元素列表
 
-    this.dialog_body=document.createElement('div');
-    this.dialog_body.className='dialog_body';
-    this.dialog_body.innerHTML='<span>'+this.settings.content+'</span>';
+    //根据弹窗元素配置渲染视图
+    MYDIALOG.fun.elementAppend(this.DialogStyle,this.dialogView);
 
-    this.dialog_footer=document.createElement('div');
-    this.dialog_footer.className='dialog_footer';
-    this.dialog_footer.innerHTML='<button class="dialog_footer_undo"><span>'+this.settings.undo+'</span></button>'+
-        '<button class="dialog_footer_submit"><span>'+this.settings.submit+'</span></button>';
-    document.body.appendChild(this.dialog);
-    this.dialog.appendChild( this.dialog_header);
-    this.dialog.appendChild( this.dialog_body);
-    this.dialog.appendChild( this.dialog_footer);
-    if(this.settings.mask){
-        this.mask=document.createElement('div');
-        this.mask.id='mask';
-        document.body.appendChild(this.mask);
-    }
+    //判断是否需要遮罩，this.settings.mask=true则生成遮罩层
+    this.mask=MYDIALOG.fun.mask(this.settings,this.mask);
 
     //加入拖拽
     dialogDrag()
 };
 
+//close开关
 Dialog.prototype.close=function(type){
     var This=this;
     var oClose=document.getElementsByClassName('close');
     oClose[0].onclick=function(){
-        document.body.removeChild(This.dialog);
-        This.json.sign=false;
-        This.mask.style.display='none'
+        MYDIALOG.fun.dialogClose(This);
     };
-    var oUndo=this.dialog_footer.getElementsByTagName('span');
+    var oUndo=this.dialogView[3].getElementsByTagName('span');
     oUndo[0].onclick=function(){
-        document.body.removeChild(This.dialog);
-        This.json.sign=false;
-        This.mask.style.display='none'
+        MYDIALOG.fun.dialogClose(This);
     };
     if(!type){
-        document.body.removeChild(This.dialog);
-        This.json.sign=false;
-        This.mask.style.display='none'
+        MYDIALOG.fun.dialogClose(This);
     }
 };
 
@@ -148,7 +146,6 @@ Drag.prototype.init=function(option){
         document.onmousemove=function(ev){
             var ev=ev||window.event;
             This.fnMove(ev)
-            // This.settings.Down()
             clickEvent(This,'Down');
             clickEvent(This,'broad',This.oDiv,true)
         };
@@ -157,7 +154,6 @@ Drag.prototype.init=function(option){
 
             document.onmousemove=null;
             document.onmouseup=null;
-           // This.settings.Up();
             clickEvent(This,'Up')
             clickEvent(This,'broad',This.oDiv,false)
         };
@@ -206,3 +202,58 @@ function clickEvent(obj,events,element,type){
     }
 
 }
+
+//私有方法
+var MYDIALOG={}
+MYDIALOG.fun=(function(){
+
+    //视图属性赋值
+    var _createElement=function(dialogClass,html,zIndex){
+        var oDiv=document.createElement('div');
+        oDiv.className=dialogClass;
+        oDiv.innerHTML=html||'';
+        if(zIndex!="") oDiv.style.zIndex=zIndex
+        return oDiv
+    };
+
+    //生成窗口视图
+    var _elementAppend=function(obj,obj2){
+        //根据配置渲染视图
+        for(var item in obj){
+            var dialogClass=obj[item].dialogClass;
+            var html=obj[item].html;
+            var index=obj[item].zIndex;
+            var oElement=MYDIALOG.fun.createElement(dialogClass,html,index);
+            obj2.push(oElement)
+        }
+        //增加到html中
+        document.body.appendChild(obj2[0]);
+        for(var i=1;i<obj2.length;i++){
+            obj2[0].appendChild(obj2[i]);
+        }
+    };
+
+    //判断是否遮罩，无则生成覆盖层
+    var _mask=function(obj,mask){
+        if(obj.mask){
+
+            mask=document.createElement('div');
+            mask.id='mask';
+            document.body.appendChild(mask);
+        }
+        return mask
+    };
+
+    //close触发器
+    var _close=function(obj){
+        document.body.removeChild(obj.dialogView[0]);
+        obj.json.sign=false;
+        obj.mask.style.display='none'
+    };
+   return {
+       createElement:_createElement,
+       elementAppend:_elementAppend,
+       mask:_mask,
+       dialogClose:_close
+   }
+}());
