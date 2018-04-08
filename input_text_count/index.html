@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./index-3-observe.js.js"></script>
+</head>
+
+<body>
+    <!-- 统计输入框中输入的字符个数 -->
+    <input type="text" id="J_input" />
+</body>
+<script>
+    window.onload = function () {
+        var t = new TextCount({ id: "J_input" })
+        //监听这个输入事件
+        observer.addListner("keyup_msg", function (count, e) {
+            if (count > 5) {
+                alert('超过了5个字了。。。')
+            }
+        })
+
+    }
+</script>
+
+</html>
